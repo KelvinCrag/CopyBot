@@ -66,7 +66,7 @@ async def delete_chat_handler(client, message):
         await message.reply_text("Usage: /delchat SOURCE_CHAT_ID DEST_CHAT_ID")
 
 
-@bot.on_message(filters.command("getallchats") & filters.user(ADMINS))
+@bot.on_message(filters.command("listallchats") & filters.user(ADMINS))
 async def get_all_chats_handler(client, message):
     try:
         chats = await get_all_chats()
