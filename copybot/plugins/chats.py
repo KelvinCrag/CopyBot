@@ -24,6 +24,22 @@ from copybot import ADMINS
 from copybot.db.db import add_chats, get_all_chats, remove_chats
 
 
+def format_chat_name(chat):
+    if getattr(chat, "title", None):
+        return chat.title
+
+    name_parts = [
+        part for part in [getattr(chat, "first_name", None), getattr(chat, "last_name", None)] if part
+    ]
+    if name_parts:
+        return " ".join(name_parts)
+
+    if getattr(chat, "username", None):
+        return f"@{chat.username}"
+
+    return "Unknown"
+
+
 @bot.on_message(filters.command("addchat") & filters.user(ADMINS))
 async def add_chat_handler(client, message):
     try:
@@ -75,8 +91,28 @@ async def get_all_chats_handler(client, message):
             return
 
         response = "**Active Chats:**\n"
+        chat_name_cache = {}
+
+        async def get_chat_name(chat_id):
+            if chat_id in chat_name_cache:
+                return chat_name_cache[chat_id]
+
+            try:
+                chat = await client.get_chat(chat_id)
+                chat_name = format_chat_name(chat)
+            except Exception:
+                chat_name = "Unknown"
+
+            chat_name_cache[chat_id] = chat_name
+            return chat_name
+
         for source, destination in chats:
-            response += f"**Source:** `{source}` - **Destination:** `{destination}`\n"
+            source_name = await get_chat_name(source)
+            destination_name = await get_chat_name(destination)
+            response += (
+                f"**Source:** {source_name} (`{source}`) - "
+                f"**Destination:** {destination_name} (`{destination}`)\n"
+            )
         await message.reply(response)
     except Exception as e:
         await message.reply(f"An error occurred: {str(e)}")

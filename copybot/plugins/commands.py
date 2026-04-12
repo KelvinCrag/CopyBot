@@ -45,7 +45,7 @@ async def help_m(bot, message):
 __eg: /addchat -10012345111 -100123456112__
 /delchat - Remove chat from source and destination - `/delchat SOURCE_CHAT_ID DEST_CHAT_ID`
 __eg: /delchat -10012345111 -100123456112__
-/listallchats - List all active chats.
+/listallchats - List all active chats with names.
     """
     await message.reply_text(help_msg)
 
